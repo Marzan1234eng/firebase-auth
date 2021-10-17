@@ -4,7 +4,7 @@ import * as firebase from 'firebase/app';
 import firebaseConfig from './firebase.config';
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
 import {useState} from "react";
-import {createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
+import {updateProfile, createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
 
 firebase.initializeApp(firebaseConfig);
 
@@ -76,7 +76,7 @@ function App() {
                     newUserInfo.error = '';
                     newUserInfo.success = true;
                     setUser(newUserInfo);
-                    //console.log(res);
+                    updateUserName(user.name);
                 })
                 .catch((error) => {
                     const newUserInfo = {...user};
@@ -92,13 +92,14 @@ function App() {
                 .then((userCredential) => {
                     // Signed in
                     const user = userCredential.user;
-                    // ...
+                    console.log(userCredential.user);
                 })
                 .then(res => {
                     const newUserInfo = {...user};
                     newUserInfo.error = '';
                     newUserInfo.success = true;
                     setUser(newUserInfo);
+
                 })
                 .catch((error) => {
                     const newUserInfo = {...user};
@@ -108,6 +109,17 @@ function App() {
                 });
         }
         e.preventDefault(); // puro page load howa bondho korbe
+    }
+
+    const updateUserName = (name) => {
+        updateProfile(auth.currentUser, {
+            displayName: name
+        }).then(() => {
+            console.log("username updated successfully");
+            // ...
+        }).catch((error) => {
+            console.log(error);
+        });
     }
 
     const handleBlur = (e) => {
@@ -156,7 +168,7 @@ function App() {
                 <br/>
                 <input placeholder="Password" name="password" onBlur={handleBlur} type="password" required/>
                 <br/>
-                <input type="submit" value="submit"/>
+                <input type="submit" value={newUser ? 'Sign Up' : 'Log In'}/>
             </form>
             <p style={{color:"red"}}>{user.error}</p>
             { user.success && <p style={{color: "green"}}>User {newUser ? 'created' : 'logged in'} successfully</p>}
