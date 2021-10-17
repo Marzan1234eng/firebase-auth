@@ -4,7 +4,7 @@ import * as firebase from 'firebase/app';
 import firebaseConfig from './firebase.config';
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
 import {useState} from "react";
-import {updateProfile, createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
+import {FacebookAuthProvider, updateProfile, createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
 
 firebase.initializeApp(firebaseConfig);
 
@@ -21,6 +21,7 @@ function App() {
         error: ''
     });
     const provider = new GoogleAuthProvider();
+    const fbProvider = new FacebookAuthProvider();
     const auth = getAuth();
 
 
@@ -139,6 +140,32 @@ function App() {
             setUser(newUserInfo);
         }
     }
+
+    const handleFbSignIn = () => {
+        signInWithPopup(auth, fbProvider)
+            .then((result) => {
+                // The signed-in user info.
+                const user = result.user;
+
+                // This gives you a Facebook Access Token. You can use it to access the Facebook API.
+                const credential = FacebookAuthProvider.credentialFromResult(result);
+                const accessToken = credential.accessToken;
+
+                console.log('fb user sign in');
+                // ...
+            })
+            .catch((error) => {
+                // Handle Errors here.
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                // The email of the user's account used.
+                const email = error.email;
+                // The AuthCredential type that was used.
+                const credential = FacebookAuthProvider.credentialFromError(error);
+
+                // ...
+            });
+    }
     //console.log(newUser);
     return (
         <div className="App">
@@ -148,6 +175,8 @@ function App() {
                     :
                     <button onClick={handleSignIn}>Sign In</button>
             }
+            <br/>
+            <button onClick={handleFbSignIn}>Sign in using facebook</button>
             {
                 user.isSignedIn && <div>
                     <p>Welcome, {user.name}</p>
